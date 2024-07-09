@@ -1,0 +1,14 @@
+---
+- name: Copying Docker Compose Files to Begin Deployment"
+  hosts: linux-host
+  vars_files:
+    - environment.yml
+  become: false
+  user: "{{USER}}"
+  tasks:
+  - name: Copying immich docker compose files
+    copy:
+      src: ~/Project_K/Ansible/Docker-Compose/immich
+      dest: ~/Docker-Compose
+    tags:
+      - immich

@@ -1,0 +1,17 @@
+---
+- name: Run the docker conatiner via compose
+  hosts: linux-host
+  become: false
+  vars_files:
+    - environment.yml
+  user: "{{USER}}"
+  tasks:
+    - name: Compose up immich container
+      community.docker.docker_compose_v2:
+        project_src: ~/Docker-Compose/immich/v1.107.2/
+        state: present
+      tags:
+        - immich
+    - name: Show results
+      ansible.builtin.debug:
+        var: output
