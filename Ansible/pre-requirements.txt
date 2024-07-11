@@ -1,0 +1,4 @@
+# Note this is for information only, This doesn't do anything.
+
+If you are leveraging the docker compose ansible module.
+ make sure you have installed the 'python3-docker' and 'python3-pip' in target/remote machine
