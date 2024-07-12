@@ -1,0 +1,17 @@
+# run the playbook with -K (capital) to ask the password
+---
+- name: Install docker
+  hosts: docker-host
+  gather_facts: false
+  vars_files:
+  - environment.yml
+  user: "{{env_vars.USER}}"
+  # become_user: "{{env_vars.USER}}" //don't use this line as it is failing
+  tasks:
+  - name: Installing docker via get-docker.sh from local machine
+    script: get-docker.sh
+    # become_method: sudo
+    become: true
+  - name: printing message for user
+    debug:
+      msg: "{{author_msg.msg1}}"

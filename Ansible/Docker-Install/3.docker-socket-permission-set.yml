@@ -2,10 +2,12 @@
 ---
 - name: Set Docker socket permission
   hosts: docker-host
+  gather_facts: false
   vars_files:
   - environment.yml
   user: "{{env_vars.USER}}"
   become: true
+  become_user: "{{env_vars.USER}}"
   tasks:
   - name: create new docker group 
     ansible.builtin.group:

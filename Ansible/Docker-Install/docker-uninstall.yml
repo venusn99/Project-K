@@ -1,0 +1,14 @@
+---
+- name: Uninstalling docker 
+  hosts: all
+  vars_files:
+    - environment.yml
+  user: "{{env_vars.USER}}"
+  tasks:
+
+  - name: Removing docker from apt
+    ansible.builtin.apt:
+      name: [docker-engine, docker docker.io, docker-ce, docker-ce-cli, docker-compose-plugin]
+      state: absent
+    become: true
+    become_method: sudo

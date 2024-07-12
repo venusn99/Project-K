@@ -1,0 +1,20 @@
+---
+- name: Installing docker from apt
+  hosts: all
+  vars_files:
+    - environment.yml
+  user: "{{env_vars.USER}}"
+  tasks:
+  - name: Update the required apt's repository
+    script: docker-apt-repository.sh
+    become: true
+  - name: Installing Docker Components on Target
+    apt:
+      name: [docker-ce,docker-ce-cli,containerd.io,docker-buildx-plugin,docker-compose-plugin]
+      update_cache: true
+      autoremove: true
+      purge: true
+      state: present
+    become: true
+    tags:
+      - 'true-install'
