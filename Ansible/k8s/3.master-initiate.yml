@@ -1,0 +1,44 @@
+---
+- name: Initialize kubeadm cluster
+  hosts: master
+  become: true
+  user: '{{USER}}'
+  vars_files:
+  - env.yml
+  vars:
+    user_home: "/home/{{ ansible_user }}"
+    master_ip: "192.168.159.100"
+  tasks:
+  - name: Initialize the Kubernetes cluster using kubeadm
+    command: kubeadm init --apiserver-advertise-address={{ master_ip }} --apiserver-cert-extra-sans={{ master_ip }}  --node-name k8s-master --pod-network-cidr=172.16.0.0/16 --cri-socket=unix:///var/run/crio/crio.sock
+    register: kubeadm_init
+    ignore_errors: yes
+
+  - name: Ensure /etc/kubernetes/admin.conf is readable
+    file: 
+      path: /etc/kubernetes/admin.conf
+      mode: '0644'
+    when: kubeadm_init is succeeded
+
+  - name: create .kube directory
+    become: false #to retrive home of user than become_user
+    file:
+      path: "{{user_home}}/.kube"
+      state: directory
+      mode: '0755'
+    when: kubeadm_init.rc == 0
+
+  - name: copy kube config to user folder
+    become: false #to retrive home of user than become_user
+    copy: 
+      remote_src: true
+      src: /etc/kubernetes/admin.conf
+      dest: "{{user_home}}/.kube/config"
+    when: kubeadm_init.rc == 0
+  
+  - name: change ownership of kube config file
+    file:
+      path: "{{user_home}}/.kube/config"
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+    when: kubeadm_init.rc == 0

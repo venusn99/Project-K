@@ -1,0 +1,20 @@
+---
+- name: delete kubernetes sources
+  hosts: all
+  become: true
+  user: venu
+  tasks:
+  - name: delete kubernetes sources
+    file:
+      path: /etc/apt/sources.list.d/kubernetes.list
+      path: /etc/apt/sources.list.d/pkgs_k8s_io_core_stable_v1_30_deb.list
+      force: true
+      state: absent
+    become_method: sudo 
+
+  - name: delete crio sources
+    file:
+      path: /etc/apt/sources.list.d/cri-o.list
+      force: true
+      state: absent
+    become_method: sudo 
