@@ -7,6 +7,23 @@
   vars_files:
   - env.yml
   tasks:
+  - name: Enable overlay kernel module
+    modprobe:
+    name: overlay
+    state: present
+
+  - name: Enable br_netfilter kernel module
+    modprobe:
+      name: br_netfilter
+      state: present
+
+  - name: Ensure Kubernetes kernel modules are loaded at boot
+    copy:
+      dest: /etc/modules-load.d/kubernetes.conf
+      content: |
+        overlay
+        br_netfilter
+  
   - name: add CRIO repository
     get_url:
       url: https://pkgs.k8s.io/addons:/cri-o:/stable:/{{CRIO_VERSION}}/deb/Release.key
