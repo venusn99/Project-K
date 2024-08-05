@@ -30,7 +30,7 @@
       - kubeadm
       - kubelet
       - kubectl
-      - crio
+      - cri-o
       update_cache: true
   
   - name: apt mark hold kubeadm kubectl kubelet
