@@ -9,8 +9,8 @@
   tasks:
   - name: Enable overlay kernel module
     modprobe:
-    name: overlay
-    state: present
+      name: overlay
+      state: present
 
   - name: Enable br_netfilter kernel module
     modprobe:
