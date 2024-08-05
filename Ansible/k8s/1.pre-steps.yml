@@ -12,7 +12,7 @@
       update_cache: true
       update_cache_retries: 2
       update_cache_retry_max_delay: 5
-      update: true
+      upgrade: true
 
     tags: apt-update
 
