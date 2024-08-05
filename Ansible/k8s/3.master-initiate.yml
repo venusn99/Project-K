@@ -7,10 +7,10 @@
   - env.yml
   vars:
     user_home: "/home/{{ ansible_user }}"
-    master_ip: "192.168.159.100"
+    master_ip: "192.168.1.10"
   tasks:
   - name: Initialize the Kubernetes cluster using kubeadm
-    command: kubeadm init --apiserver-advertise-address={{ master_ip }} --apiserver-cert-extra-sans={{ master_ip }}  --node-name k8s-master --pod-network-cidr=172.16.0.0/16 --cri-socket=unix:///var/run/crio/crio.sock
+    command: kubeadm init --apiserver-advertise-address={{ master_ip }} --apiserver-cert-extra-sans={{ master_ip }} --pod-network-cidr=172.16.0.0/16 --cri-socket=unix:///var/run/crio/crio.sock
     register: kubeadm_init
     ignore_errors: yes
 
