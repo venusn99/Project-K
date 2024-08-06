@@ -1,0 +1,85 @@
+---
+- name: Install Kubernetets cluster 
+  hosts: all
+  become: true
+  become_user: root
+  user: "{{USER}}"
+  vars_files:
+  - env.yml
+  tasks:
+  - name: Enable overlay kernel module
+    modprobe:
+      name: overlay
+      state: present
+
+  - name: Enable br_netfilter kernel module
+    modprobe:
+      name: br_netfilter
+      state: present
+
+  - name: Ensure Kubernetes kernel modules are loaded at boot
+    copy:
+      dest: /etc/modules-load.d/kubernetes.conf
+      content: |
+        overlay
+        br_netfilter
+  
+  - name: add CRIO repository
+    get_url:
+      url: https://pkgs.k8s.io/addons:/cri-o:/stable:/{{CRIO_VERSION}}/deb/Release.key
+      dest: /etc/apt/keyrings/cri-o-apt-keyring_armor.gpg
+      mode: '0644'
+  
+  - name: dearmor CRIO public key to keyring folder
+    shell: |
+      gpg --dearmor < /etc/apt/keyrings/cri-o-apt-keyring_armor.gpg | sudo tee /etc/apt/keyrings/cri-o-apt-keyring.gpg
+      sudo rm -f /etc/apt/keyrings/cri-o-apt-keyring_armor.gpg
+    args:
+      creates: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+      removes: /etc/apt/keyrings/cri-o-apt-keyring_armor.gpg
+
+  - name: add CRIO apt repository
+    shell: echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/{{CRIO_VERSION}}/deb/ /" | sudo tee /etc/apt/sources.list.d/cri-o.list
+  
+  - name: Installing kubeadm kubectl kubelet cri-o
+    apt:
+      name:
+      - kubeadm=1.30.3-1.1
+      - kubelet=1.30.3-1.1
+      - kubectl=1.30.3-1.1
+      - cri-o=1.30.4-1.1
+      update_cache: true
+  
+  - name: apt mark hold kubeadm kubectl kubelet
+    ansible.builtin.dpkg_selections:
+      name: '{{item}}'
+      selection: hold
+    with_items:
+      - kubeadm
+      - kubectl
+      - kubelet
+
+  - name: Configure node ip
+    lineinfile:
+      path: /etc/default/kubelet
+      regexp: KUBELET_EXTRA_ARGS=
+      line: KUBELET_EXTRA_ARGS=--node-ip={{ansible_default_ipv4.address}} # based on ansible_facts
+      state: present
+    tags:
+    - update-kubelet
+
+  - name: Restart kubelet kubelet
+    service:
+      name: "{{item}}"
+      daemon_reload: yes
+      state: restarted
+    with_items:
+    - kubelet
+    - cri-o
+  - name: Replace default pod CIDR with {{CLUSTER_POD_CIDR}}
+    replace:
+      path: /etc/cni/net.d/11-crio-ipv4-bridge.conflist
+      regexp: '10\.85\.0\.0\/16'
+      replace: '{{CLUSTER_POD_CIDR}}'
+      backup: yes
+      
