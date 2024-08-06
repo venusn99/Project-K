@@ -76,3 +76,12 @@
     with_items:
     - kubelet
     - cri-o
+  - name: Replace default pod CIDR with {{CLUSTER_POD_CIDR}}
+    replace:
+      path: /etc/cni/net.d/11-crio-ipv4-bridge.conflist
+      regexp: '10\.85\.0\.0\/16'
+      replace: '{{CLUSTER_POD_CIDR}}'
+      backrefs: yes #backrefs option guarantees that if the regexp does not match, the file will be left unchanged
+      state: present
+      backup: yes
+      
