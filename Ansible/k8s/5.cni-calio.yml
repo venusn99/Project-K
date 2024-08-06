@@ -1,0 +1,32 @@
+---
+- name: Configuring CNI plugin
+  hosts: localhost
+  vars_files:
+  - env.yml
+  user: '{{USER}}'
+  tasks:
+  - name: Modifying 
+    replace:
+      path: calico.yml
+      regexp: '172\.16\.0\.0\/16' # update IPV4POOL_CIDR
+      replace: '{{CLUSTER_POD_CIDR}}'
+      backup: yes
+
+- name: Install and Configure Calico CNI for POD Networking
+  hosts: master
+  user: '{{USER}}'
+  become: true
+  vars_files:
+  - env.yml
+  tasks:
+  - name: =============[  Applying calico config ]=========== 
+    copy: 
+      src: calico.yml
+      dest: /home/{{ansible_user}}/calico.yml
+  - name: Apply Calico configuration
+    become: false
+    shell: kubectl apply -f /home/{{ansible_user}}/calico.yml
+    register: calico_buffer
+  - debug:
+      msg: calico_buffer.stdout_lines
+
