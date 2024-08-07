@@ -7,15 +7,6 @@
   vars_files:
   - env.yml
   tasks:
-  - name: run apt update command
-    apt: 
-      update_cache: true
-      update_cache_retries: 2
-      update_cache_retry_max_delay: 5
-      upgrade: true
-
-    tags: apt-update
-
   - name: installing apt packages required for kubernetes
     apt:
       name:
