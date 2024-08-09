@@ -12,5 +12,4 @@
       update_cache_retries: 2
       update_cache_retry_max_delay: 5
       upgrade: true #use it when required
-
     tags: apt-update

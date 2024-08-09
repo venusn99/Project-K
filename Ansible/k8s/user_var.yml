@@ -1,0 +1,4 @@
+default_user_password: 'password'
+new_user:
+  - user1
+  - user2
