@@ -16,6 +16,6 @@
     become: true
     # become_user: venu
     become_method: sudo
-    - name: printing message for user
+  - name: printing message for user
     debug:
       msg: "{{author_msg.msg1}}"
